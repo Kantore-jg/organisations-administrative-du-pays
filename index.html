@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burundi - Organisation Administrative</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1e6b3a;
+            --primary-light: #2e8b4e;
+            --primary-dark: #145228;
+            --red: #ce1126;
+            --white: #ffffff;
+            --bg: #f0f4f1;
+            --card-bg: #ffffff;
+            --text: #1a1a2e;
+            --text-light: #555;
+            --border: #dde5df;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary), var(--primary-light));
+            color: var(--white);
+            padding: 2rem 1rem 3rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            position: relative;
+            letter-spacing: 1px;
+        }
+
+        header h1 .flag-star {
+            color: var(--red);
+            font-size: 1.5rem;
+            vertical-align: middle;
+        }
+
+        header p {
+            margin-top: 0.5rem;
+            opacity: 0.9;
+            font-size: 1rem;
+            position: relative;
+        }
+
+        .search-container {
+            max-width: 650px;
+            margin: -1.5rem auto 0;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            transition: box-shadow 0.3s;
+        }
+
+        .search-box:focus-within {
+            box-shadow: 0 8px 32px rgba(30, 107, 58, 0.25);
+        }
+
+        .search-icon {
+            padding: 0 0 0 1.2rem;
+            color: var(--text-light);
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 1.1rem 1rem;
+            border: none;
+            outline: none;
+            font-size: 1.05rem;
+            color: var(--text);
+            background: transparent;
+        }
+
+        .search-box input::placeholder {
+            color: #aaa;
+        }
+
+        .search-clear {
+            padding: 0.6rem 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3rem;
+            color: #aaa;
+            display: none;
+            transition: color 0.2s;
+        }
+
+        .search-clear:hover {
+            color: var(--red);
+        }
+
+        .search-clear.visible {
+            display: block;
+        }
+
+        .stats {
+            text-align: center;
+            padding: 1rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .stats span {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0.5rem 1rem 3rem;
+        }
+
+        .results-info {
+            padding: 0.5rem 0 1rem;
+            color: var(--text-light);
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .results-info span {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1rem 1.3rem;
+            margin-bottom: 0.6rem;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            border-left: 4px solid transparent;
+        }
+
+        .result-card:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .result-card.level-province { border-left-color: var(--primary); }
+        .result-card.level-commune { border-left-color: #2196F3; }
+        .result-card.level-zone { border-left-color: #FF9800; }
+        .result-card.level-colline { border-left-color: var(--red); }
+
+        .result-name {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .result-name mark {
+            background: #fff3cd;
+            color: var(--text);
+            padding: 0 2px;
+            border-radius: 3px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.2rem;
+            font-size: 0.88rem;
+            color: var(--text-light);
+        }
+
+        .breadcrumb .crumb {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .breadcrumb .crumb.crumb-country { color: var(--primary); font-weight: 600; }
+        .breadcrumb .crumb.crumb-province { color: var(--primary-light); }
+        .breadcrumb .crumb.crumb-commune { color: #2196F3; }
+        .breadcrumb .crumb.crumb-zone { color: #FF9800; }
+        .breadcrumb .crumb.crumb-colline { color: var(--red); }
+
+        .breadcrumb .separator {
+            color: #ccc;
+            margin: 0 0.15rem;
+            font-size: 0.75rem;
+        }
+
+        .level-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .badge-province { background: #e8f5e9; color: var(--primary); }
+        .badge-commune { background: #e3f2fd; color: #1565C0; }
+        .badge-zone { background: #fff3e0; color: #e65100; }
+        .badge-colline { background: #fce4ec; color: var(--red); }
+
+        .tree-section {
+            margin-top: 1.5rem;
+        }
+
+        .tree-section h2 {
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tree {
+            list-style: none;
+        }
+
+        .tree li {
+            position: relative;
+        }
+
+        .tree-toggle {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.8rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.15s;
+            user-select: none;
+            gap: 0.5rem;
+        }
+
+        .tree-toggle:hover {
+            background: rgba(30, 107, 58, 0.06);
+        }
+
+        .tree-toggle .arrow {
+            font-size: 0.7rem;
+            transition: transform 0.2s;
+            color: var(--text-light);
+            flex-shrink: 0;
+            width: 1rem;
+            text-align: center;
+        }
+
+        .tree-toggle .arrow.open {
+            transform: rotate(90deg);
+        }
+
+        .tree-toggle .node-name {
+            font-weight: 500;
+        }
+
+        .tree-toggle .node-count {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            background: var(--bg);
+            padding: 0.1rem 0.5rem;
+            border-radius: 999px;
+            margin-left: auto;
+        }
+
+        .tree-children {
+            display: none;
+            padding-left: 1.5rem;
+            border-left: 2px solid var(--border);
+            margin-left: 1.2rem;
+        }
+
+        .tree-children.open {
+            display: block;
+        }
+
+        .tree-leaf {
+            padding: 0.35rem 0.8rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            border-radius: 6px;
+            transition: background 0.15s;
+        }
+
+        .tree-leaf:hover {
+            background: rgba(30, 107, 58, 0.06);
+            color: var(--text);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-light);
+        }
+
+        .empty-state .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.4;
+        }
+
+        .empty-state h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.8rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.2rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-light);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.6rem; }
+            .result-card { padding: 0.8rem 1rem; }
+            .quick-stats { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1><span class="flag-star">✦</span> BURUNDI <span class="flag-star">✦</span></h1>
+    <p>Organisation Administrative du Pays</p>
+</header>
+
+<div class="search-container">
+    <div class="search-box">
+        <span class="search-icon">&#128269;</span>
+        <input type="text" id="searchInput" placeholder="Rechercher une province, commune, zone, colline..." autocomplete="off">
+        <button class="search-clear" id="clearBtn" title="Effacer">&times;</button>
+    </div>
+</div>
+
+<div class="content">
+    <div class="stats" id="globalStats"></div>
+    <div class="results-info" id="resultsInfo"></div>
+    <div id="results"></div>
+
+    <div id="defaultView">
+        <div class="quick-stats" id="quickStats"></div>
+        <div class="tree-section">
+            <h2>Explorer l'arborescence</h2>
+            <ul class="tree" id="treeView"></ul>
+        </div>
+    </div>
+</div>
+
+<footer>
+    Burundi &mdash; Organisation Administrative &mdash; Provinces, Communes, Zones &amp; Collines
+</footer>
+
+<script>
+let DATA = {};
+let INDEX = [];
+
+async function loadData() {
+    const resp = await fetch('data.json');
+    DATA = await resp.json();
+    buildIndex();
+    renderStats();
+    renderTree();
+}
+
+function buildIndex() {
+    INDEX = [];
+    for (const [province, communes] of Object.entries(DATA)) {
+        INDEX.push({
+            name: province,
+            type: 'province',
+            path: ['Burundi', province]
+        });
+        for (const [commune, zones] of Object.entries(communes)) {
+            INDEX.push({
+                name: commune,
+                type: 'commune',
+                path: ['Burundi', province, commune]
+            });
+            for (const [zone, collines] of Object.entries(zones)) {
+                INDEX.push({
+                    name: zone,
+                    type: 'zone',
+                    path: ['Burundi', province, commune, zone]
+                });
+                for (const colline of collines) {
+                    INDEX.push({
+                        name: colline,
+                        type: 'colline',
+                        path: ['Burundi', province, commune, zone, colline]
+                    });
+                }
+            }
+        }
+    }
+}
+
+function renderStats() {
+    const provinces = new Set();
+    const communes = new Set();
+    const zones = new Set();
+    let collines = 0;
+
+    for (const item of INDEX) {
+        switch (item.type) {
+            case 'province': provinces.add(item.name); break;
+            case 'commune': communes.add(item.name); break;
+            case 'zone': zones.add(item.name); break;
+            case 'colline': collines++; break;
+        }
+    }
+
+    document.getElementById('globalStats').innerHTML =
+        `<span>${provinces.size}</span> provinces &bull; <span>${communes.size}</span> communes &bull; <span>${zones.size}</span> zones &bull; <span>${collines}</span> collines`;
+
+    document.getElementById('quickStats').innerHTML = `
+        <div class="stat-card"><div class="stat-number">${provinces.size}</div><div class="stat-label">Provinces</div></div>
+        <div class="stat-card"><div class="stat-number">${communes.size}</div><div class="stat-label">Communes</div></div>
+        <div class="stat-card"><div class="stat-number">${zones.size}</div><div class="stat-label">Zones</div></div>
+        <div class="stat-card"><div class="stat-number">${collines}</div><div class="stat-label">Collines</div></div>
+    `;
+}
+
+function normalize(str) {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+function highlightMatch(text, query) {
+    if (!query) return text;
+    const norm = normalize(text);
+    const normQ = normalize(query);
+    const idx = norm.indexOf(normQ);
+    if (idx === -1) return text;
+    return text.substring(0, idx) + '<mark>' + text.substring(idx, idx + query.length) + '</mark>' + text.substring(idx + query.length);
+}
+
+function search(query) {
+    const normQ = normalize(query);
+    const results = [];
+
+    for (const item of INDEX) {
+        const normName = normalize(item.name);
+        if (normName.includes(normQ)) {
+            const startsWithBonus = normName.startsWith(normQ) ? 0 : 1;
+            const exactBonus = normName === normQ ? -1 : 0;
+            const typeOrder = { province: 0, commune: 1, zone: 2, colline: 3 };
+            results.push({
+                ...item,
+                score: exactBonus + startsWithBonus + typeOrder[item.type] * 0.1
+            });
+        }
+    }
+
+    results.sort((a, b) => a.score - b.score);
+    return results;
+}
+
+const typeLabels = {
+    province: 'Province',
+    commune: 'Commune',
+    zone: 'Zone',
+    colline: 'Colline'
+};
+
+const crumbClasses = ['crumb-country', 'crumb-province', 'crumb-commune', 'crumb-zone', 'crumb-colline'];
+
+function renderBreadcrumb(path) {
+    return path.map((p, i) => {
+        const cls = crumbClasses[i] || '';
+        const sep = i < path.length - 1 ? '<span class="separator">▸</span>' : '';
+        return `<span class="crumb ${cls}">${p}</span>${sep}`;
+    }).join('');
+}
+
+function renderResults(results, query) {
+    const container = document.getElementById('results');
+    const info = document.getElementById('resultsInfo');
+    const defaultView = document.getElementById('defaultView');
+
+    if (!query) {
+        container.innerHTML = '';
+        info.style.display = 'none';
+        defaultView.style.display = '';
+        return;
+    }
+
+    defaultView.style.display = 'none';
+    info.style.display = 'block';
+
+    if (results.length === 0) {
+        info.innerHTML = '';
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="icon">&#128270;</div>
+                <h3>Aucun résultat pour "${query}"</h3>
+                <p>Essayez un autre terme de recherche</p>
+            </div>
+        `;
+        return;
+    }
+
+    const shown = results.slice(0, 100);
+    info.innerHTML = `<span>${results.length}</span> résultat${results.length > 1 ? 's' : ''} trouvé${results.length > 1 ? 's' : ''} pour "<strong>${query}</strong>"`;
+
+    container.innerHTML = shown.map(r => `
+        <div class="result-card level-${r.type}" data-path='${JSON.stringify(r.path)}'>
+            <div class="result-name">
+                ${highlightMatch(r.name, query)}
+                <span class="level-badge badge-${r.type}">${typeLabels[r.type]}</span>
+            </div>
+            <div class="breadcrumb">${renderBreadcrumb(r.path)}</div>
+        </div>
+    `).join('');
+
+    container.querySelectorAll('.result-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const path = JSON.parse(card.dataset.path);
+            expandTreePath(path);
+        });
+    });
+}
+
+function renderTree() {
+    const tree = document.getElementById('treeView');
+    tree.innerHTML = '';
+
+    for (const [province, communes] of Object.entries(DATA)) {
+        const communeCount = Object.keys(communes).length;
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <div class="tree-toggle" data-level="province">
+                <span class="arrow">▶</span>
+                <span class="node-name">${province}</span>
+                <span class="node-count">${communeCount} commune${communeCount > 1 ? 's' : ''}</span>
+            </div>
+        `;
+        const childrenUl = document.createElement('ul');
+        childrenUl.className = 'tree-children';
+
+        for (const [commune, zones] of Object.entries(communes)) {
+            const zoneCount = Object.keys(zones).length;
+            const cLi = document.createElement('li');
+            cLi.innerHTML = `
+                <div class="tree-toggle" data-level="commune">
+                    <span class="arrow">▶</span>
+                    <span class="node-name">${commune}</span>
+                    <span class="node-count">${zoneCount} zone${zoneCount > 1 ? 's' : ''}</span>
+                </div>
+            `;
+            const zoneUl = document.createElement('ul');
+            zoneUl.className = 'tree-children';
+
+            for (const [zone, collines] of Object.entries(zones)) {
+                const zLi = document.createElement('li');
+                zLi.innerHTML = `
+                    <div class="tree-toggle" data-level="zone">
+                        <span class="arrow">▶</span>
+                        <span class="node-name">${zone}</span>
+                        <span class="node-count">${collines.length} colline${collines.length > 1 ? 's' : ''}</span>
+                    </div>
+                `;
+                const colUl = document.createElement('ul');
+                colUl.className = 'tree-children';
+
+                for (const colline of collines) {
+                    const leaf = document.createElement('li');
+                    leaf.className = 'tree-leaf';
+                    leaf.textContent = colline;
+                    colUl.appendChild(leaf);
+                }
+
+                zLi.appendChild(colUl);
+                zoneUl.appendChild(zLi);
+            }
+
+            cLi.appendChild(zoneUl);
+            childrenUl.appendChild(cLi);
+        }
+
+        li.appendChild(childrenUl);
+        tree.appendChild(li);
+    }
+
+    tree.addEventListener('click', (e) => {
+        const toggle = e.target.closest('.tree-toggle');
+        if (!toggle) return;
+        const arrow = toggle.querySelector('.arrow');
+        const children = toggle.parentElement.querySelector('.tree-children');
+        if (children) {
+            children.classList.toggle('open');
+            arrow.classList.toggle('open');
+        }
+    });
+}
+
+function expandTreePath(path) {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('clearBtn').classList.remove('visible');
+    document.getElementById('results').innerHTML = '';
+    document.getElementById('resultsInfo').style.display = 'none';
+    document.getElementById('defaultView').style.display = '';
+
+    document.querySelectorAll('.tree-children').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll('.arrow').forEach(el => el.classList.remove('open'));
+
+    const treeRoot = document.getElementById('treeView');
+    let currentLevel = treeRoot;
+
+    for (let i = 1; i < path.length; i++) {
+        const name = path[i];
+        const toggles = currentLevel.querySelectorAll(':scope > li > .tree-toggle');
+
+        for (const toggle of toggles) {
+            const nodeName = toggle.querySelector('.node-name');
+            if (nodeName && normalize(nodeName.textContent) === normalize(name)) {
+                const arrow = toggle.querySelector('.arrow');
+                const children = toggle.parentElement.querySelector('.tree-children');
+
+                if (children && i < path.length - 1) {
+                    children.classList.add('open');
+                    arrow.classList.add('open');
+                    currentLevel = children;
+                } else if (children) {
+                    children.classList.add('open');
+                    arrow.classList.add('open');
+                }
+
+                if (i === path.length - 1) {
+                    toggle.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    toggle.style.background = 'rgba(30, 107, 58, 0.12)';
+                    setTimeout(() => { toggle.style.background = ''; }, 2000);
+                }
+                break;
+            }
+        }
+
+        const leaves = currentLevel.querySelectorAll(':scope > li.tree-leaf');
+        for (const leaf of leaves) {
+            if (normalize(leaf.textContent) === normalize(name)) {
+                leaf.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                leaf.style.background = 'rgba(30, 107, 58, 0.15)';
+                leaf.style.color = 'var(--text)';
+                setTimeout(() => { leaf.style.background = ''; leaf.style.color = ''; }, 2000);
+                break;
+            }
+        }
+    }
+}
+
+const searchInput = document.getElementById('searchInput');
+const clearBtn = document.getElementById('clearBtn');
+let debounceTimer;
+
+searchInput.addEventListener('input', () => {
+    const val = searchInput.value.trim();
+    clearBtn.classList.toggle('visible', val.length > 0);
+
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        if (val.length < 1) {
+            renderResults([], '');
+            return;
+        }
+        const results = search(val);
+        renderResults(results, val);
+    }, 150);
+});
+
+clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    clearBtn.classList.remove('visible');
+    renderResults([], '');
+    searchInput.focus();
+});
+
+searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        searchInput.value = '';
+        clearBtn.classList.remove('visible');
+        renderResults([], '');
+    }
+});
+
+loadData();
+</script>
+
+</body>
+</html>
